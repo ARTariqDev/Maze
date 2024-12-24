@@ -13,7 +13,6 @@ const wallIndexes = {
   "0,-1": 3, // West
 };
 
-// Maze generation logic using Wilson's algorithm
 const generateWilsonMaze = (rows, cols) => {
   const grid = Array.from({ length: rows }, () =>
     Array.from({ length: cols }, () => ({
@@ -83,7 +82,7 @@ const Maze = ({ rows = 10, cols = 10 }) => {
   const [playerPos, setPlayerPos] = useState([0, 0]);
   const [goalPos, setGoalPos] = useState([rows - 1, cols - 1]);
   const [level, setLevel] = useState(1);
-  const [timeLeft, setTimeLeft] = useState(level * 60);
+  const [timeLeft, setTimeLeft] = useState(60);
   const [timerRunning, setTimerRunning] = useState(false);
   const [gameOver, setGameOver] = useState(false);
   const [win, setWin] = useState(false);
@@ -93,7 +92,7 @@ const Maze = ({ rows = 10, cols = 10 }) => {
     setGrid(newGrid);
     setPlayerPos([0, 0]);
     setGoalPos([rows - 1, cols - 1]);
-    setTimeLeft(level * 60);
+    setTimeLeft(Math.max(60 - (level - 1) * 5, 15));
     setTimerRunning(false);
     setGameOver(false);
     setWin(false);
@@ -185,7 +184,7 @@ const Maze = ({ rows = 10, cols = 10 }) => {
   const resetGame = () => {
     setLevel(1);
     setPlayerPos([0, 0]);
-    setTimeLeft(level * 60);
+    setTimeLeft(60);
     setTimerRunning(false);
     setGameOver(false);
     setWin(false);
@@ -199,7 +198,11 @@ const Maze = ({ rows = 10, cols = 10 }) => {
   }, [playerPos, timerRunning]);
 
   return (
-    <div>
+    <div className="maze-container">
+      <h1>Maze Game</h1>
+      <p className="info">Level: {level}</p>
+      <p className="info">Time Left: {timeLeft}s</p>
+
       <div
         className="maze"
         style={{
@@ -234,9 +237,7 @@ const Maze = ({ rows = 10, cols = 10 }) => {
         <button onClick={() => handleButtonClick('down')}>Down</button>
       </div>
 
-      <div className="info">
-        <p>Level: {level}</p>
-        <p>Time Left: {timeLeft}s</p>
+      <div className="status">
         {win && <p>Congratulations! <button onClick={nextLevel}>Next Level</button></p>}
         {gameOver && <p>Game Over! <button onClick={resetGame}>Restart</button></p>}
       </div>
