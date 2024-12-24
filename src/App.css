@@ -1,0 +1,90 @@
+/* Maze container */
+.maze {
+  display: grid;
+  gap: 0;
+  justify-content: center;
+}
+
+/* Cell styling */
+.cell {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  box-sizing: border-box;
+  background-color: white;
+}
+
+/* Wall styling */
+.wall {
+  position: absolute;
+  background-color: black;
+  z-index: 1;
+}
+
+.wall-north {
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+}
+
+.wall-east {
+  top: 0;
+  right: 0;
+  width: 2px;
+  height: 100%;
+}
+
+.wall-south {
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+}
+
+.wall-west {
+  top: 0;
+  left: 0;
+  width: 2px;
+  height: 100%;
+}
+
+/* Player and goal styling */
+.player {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  width: 20px;
+  height: 20px;
+  background-color: red;
+  border-radius: 50%;
+}
+
+.goal {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  width: 20px;
+  height: 20px;
+  background-color: yellow;
+  border-radius: 50%;
+}
+
+/* Styling for the controls (buttons) */
+.controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.controls button {
+  margin: 5px;
+  padding: 10px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.controls div {
+  display: flex;
+}
