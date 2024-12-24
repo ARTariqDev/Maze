@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import bgMusic from "./bg.mp3";
 
 const directions = [
   [-1, 0], // North
@@ -41,7 +42,9 @@ const generateWilsonMaze = (rows, cols) => {
       if (nx >= 0 && nx < rows && ny >= 0 && ny < cols) {
         const currentCell = `${nx},${ny}`;
 
-        const loopStartIndex = path.findIndex(([px, py]) => `${px},${py}` === currentCell);
+        const loopStartIndex = path.findIndex(
+          ([px, py]) => `${px},${py}` === currentCell
+        );
         if (loopStartIndex !== -1) {
           path = path.slice(0, loopStartIndex + 1);
         } else {
@@ -86,13 +89,14 @@ const Maze = ({ rows = 10, cols = 10 }) => {
   const [timerRunning, setTimerRunning] = useState(false);
   const [gameOver, setGameOver] = useState(false);
   const [win, setWin] = useState(false);
+  const [score, setScore] = useState(0);
 
   useEffect(() => {
     const newGrid = generateWilsonMaze(rows, cols);
     setGrid(newGrid);
     setPlayerPos([0, 0]);
     setGoalPos([rows - 1, cols - 1]);
-    setTimeLeft(Math.max(60 - (level - 1) * 5, 15));
+    setTimeLeft(Math.max(60 - (level - 1) * 5, 10));
     setTimerRunning(false);
     setGameOver(false);
     setWin(false);
@@ -133,16 +137,16 @@ const Maze = ({ rows = 10, cols = 10 }) => {
       if (!timerRunning) setTimerRunning(true);
 
       switch (direction) {
-        case 'up':
+        case "up":
           movePlayer(-1, 0);
           break;
-        case 'down':
+        case "down":
           movePlayer(1, 0);
           break;
-        case 'left':
+        case "left":
           movePlayer(0, -1);
           break;
-        case 'right':
+        case "right":
           movePlayer(0, 1);
           break;
         default:
@@ -155,21 +159,21 @@ const Maze = ({ rows = 10, cols = 10 }) => {
     if (!timerRunning) setTimerRunning(true);
 
     switch (e.key) {
-      case 'ArrowUp':
-      case 'w':
-        handleButtonClick('up');
+      case "ArrowUp":
+      case "w":
+        handleButtonClick("up");
         break;
-      case 'ArrowDown':
-      case 's':
-        handleButtonClick('down');
+      case "ArrowDown":
+      case "s":
+        handleButtonClick("down");
         break;
-      case 'ArrowLeft':
-      case 'a':
-        handleButtonClick('left');
+      case "ArrowLeft":
+      case "a":
+        handleButtonClick("left");
         break;
-      case 'ArrowRight':
-      case 'd':
-        handleButtonClick('right');
+      case "ArrowRight":
+      case "d":
+        handleButtonClick("right");
         break;
       default:
         break;
@@ -179,9 +183,11 @@ const Maze = ({ rows = 10, cols = 10 }) => {
   const nextLevel = () => {
     setLevel(level + 1);
     setTimerRunning(false);
+    setScore(score + timeLeft);
   };
 
   const resetGame = () => {
+    setScore(0);
     setLevel(1);
     setPlayerPos([0, 0]);
     setTimeLeft(60);
@@ -192,56 +198,87 @@ const Maze = ({ rows = 10, cols = 10 }) => {
     setGrid(newGrid);
   };
 
+  const retryLevel = () => {
+    setScore(score);
+    setLevel(level);
+    setPlayerPos([0, 0]);
+    setTimeLeft(timeLeft);
+    setTimeLeft(60);
+    setTimerRunning(false);
+    setGameOver(false);
+    setWin(false);
+  };
+
   useEffect(() => {
-    window.addEventListener('keydown', handleKeyPress);
-    return () => window.removeEventListener('keydown', handleKeyPress);
+    window.addEventListener("keydown", handleKeyPress);
+    return () => window.removeEventListener("keydown", handleKeyPress);
   }, [playerPos, timerRunning]);
 
   return (
-    <div className="maze-container">
-      <h1>Maze Game</h1>
-      <p className="info">Level: {level}</p>
-      <p className="info">Time Left: {timeLeft}s</p>
-
-      <div
-        className="maze"
-        style={{
-          gridTemplateColumns: `repeat(${cols}, 40px)`,
-          gridTemplateRows: `repeat(${rows}, 40px)`,
-        }}
-      >
-        {grid.map((row, x) =>
-          row.map((cell, y) => (
-            <div key={`${x}-${y}`} className="cell">
-              {cell.walls[0] && <div className="wall wall-north"></div>}
-              {cell.walls[1] && <div className="wall wall-east"></div>}
-              {cell.walls[2] && <div className="wall wall-south"></div>}
-              {cell.walls[3] && <div className="wall wall-west"></div>}
-              {playerPos[0] === x && playerPos[1] === y && (
-                <div className="player"></div>
-              )}
-              {goalPos[0] === x && goalPos[1] === y && (
-                <div className="goal"></div>
-              )}
-            </div>
-          ))
-        )}
-      </div>
-
-      <div className="controls">
-        <button onClick={() => handleButtonClick('up')}>Up</button>
-        <div>
-          <button onClick={() => handleButtonClick('left')}>Left</button>
-          <button onClick={() => handleButtonClick('right')}>Right</button>
+    <>
+      <div className="maze-container">
+        <div id="right">
+        <h1>Maze Runner</h1>
+        <p className="info">Level: {level}</p>
+        <p>Score: {score}</p>
+        <p className="info">Time Left: {timeLeft}s</p>
+        <p style={{color : '#ffaa00',fontFamily : 'monospace,monospace'}}>Tip: You can use wasd/arrow keys to move as well</p>
+        <div className="status">
+          {win && (
+            <p>
+              Congratulations!{" "}
+              <button onClick={nextLevel}>Next Level</button>
+            </p>
+          )}
+          {gameOver && (
+            <>
+              <p>Game Over!</p>
+              <button onClick={resetGame}>Restart</button>
+            </>
+          )}
         </div>
-        <button onClick={() => handleButtonClick('down')}>Down</button>
-      </div>
 
-      <div className="status">
-        {win && <p>Congratulations! <button onClick={nextLevel}>Next Level</button></p>}
-        {gameOver && <p>Game Over! <button onClick={resetGame}>Restart</button></p>}
+        </div>
+
+        <div
+          className="maze"
+          style={{
+            gridTemplateColumns: `repeat(${cols}, 40px)`,
+            gridTemplateRows: `repeat(${rows}, 40px)`,
+          }}
+        >
+          {grid.map((row, x) =>
+            row.map((cell, y) => (
+              <div key={`${x}-${y}`} className="cell">
+                {cell.walls[0] && <div className="wall wall-north"></div>}
+                {cell.walls[1] && <div className="wall wall-east"></div>}
+                {cell.walls[2] && <div className="wall wall-south"></div>}
+                {cell.walls[3] && <div className="wall wall-west"></div>}
+                {playerPos[0] === x && playerPos[1] === y && (
+                  <div className="player"></div>
+                )}
+                {goalPos[0] === x && goalPos[1] === y && (
+                  <div className="goal"></div>
+                )}
+              </div>
+            ))
+          )}
+        </div>
+
+        <span className="controls" id="left">
+            <div className="controls-up-down">
+                <button onClick={() => handleButtonClick("up")}>Up</button>
+            </div>
+            <div className="controls-left-right">
+                <button onClick={() => handleButtonClick("left")}>Left</button>
+                <button onClick={() => handleButtonClick("right")}>Right</button>
+            </div>
+            <div className="controls-up-down">
+                <button onClick={() => handleButtonClick("down")}>Down</button>
+            </div>
+        </span>
       </div>
-    </div>
+    </>
   );
 };
 
